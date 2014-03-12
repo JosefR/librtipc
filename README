@@ -1,0 +1,70 @@
+--------------------------------------------------------------------------------
+- librtipc                                                                     -
+- Copyright (C) 2011-2014 Josef Raschen <josef@raschen.org>                    -
+--------------------------------------------------------------------------------
+
+
+
+The library librtipc includes several shared memory based objects for 
+realtime-capable inter-process communication. These objects were implemented 
+especially for situations where processes with different levels of real-time 
+requirements have to communicate. 
+
+In addition to some basic synchronization mechanisms the library includes 
+several queue objects with lock-free and some of them even with wait-free 
+characteristics. 
+
+Currently, the implementation of the library is available for x86 and ARMv7 
+CPU architectures and runs on the Linux operating system. To simplify porting 
+of the library, an abstraction layer for hardware and operating system 
+functionalities has been introduced.  
+ 
+
+ 
+--------------------------------------------------------------------------------
+ IPC Objects
+--------------------------------------------------------------------------------
+
+IPC Objects:
+ - Mutex
+ - Barrier
+ - Flag
+ - wait-free single-producer single-consumer queue
+ - wait-free multi-producer single-consumer queue (*)
+ - lock-free multi-producer multi-consumer queue
+ - lock-free multi-producer single-consumer queue
+ - sensor-buffer object for a wait-free writer and a lock-free consumer
+
+ 
+(*) on ARMv7: lock-free producer and wait-free consumer
+
+
+
+--------------------------------------------------------------------------------
+ Build
+--------------------------------------------------------------------------------
+
+1. set up some symlinks:
+
+./configure <arch> <system>
+
+available options:
+<arch> x86, arm
+<system> linux
+
+
+2. build
+
+make
+
+
+--------------------------------------------------------------------------------
+ Demo Applications
+--------------------------------------------------------------------------------
+
+The subdirectories 'demo' and 'benchmark' contain some examples on how to use 
+librtipc. Most of the benchmarks will need root privileges to run. But be 
+carful when running them: Some of them will clear the interrupt flag for some 
+time, so your system will freeze for some time (or forever in case of any 
+error). 
+

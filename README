@@ -4,7 +4,6 @@
 --------------------------------------------------------------------------------
 
 
-
 The library librtipc includes several shared memory based objects for 
 realtime-capable inter-process communication. These objects were implemented 
 especially for situations where processes with different levels of real-time 
@@ -12,32 +11,76 @@ requirements have to communicate.
 
 In addition to some basic synchronization mechanisms the library includes 
 several queue objects with lock-free and some of them even with wait-free 
-characteristics. 
+characteristics. These objects use pooled pre-allocated memory and thus can run 
+in situations where a (real-time capable) memory allocator is not available. 
 
-Currently, the implementation of the library is available for x86 and ARMv7 
-CPU architectures and runs on the Linux operating system. To simplify porting 
-of the library, an abstraction layer for hardware and operating system 
-functionalities has been introduced.  
- 
+Currently, librtipc is available for x86 and ARMv7 CPU architectures and runs 
+on the Linux operating system. To simplify porting of the library, an 
+abstraction layer for hardware and operating system functionalities has been 
+introduced.  
+
+
+--------------------------------------------------------------------------------
+ Lock-Free/Wait-Free
+--------------------------------------------------------------------------------
+
+The terms lock-free and wait-free are used in the following meaning:
+
+lock-free: Accessing a shared resource without locking a section exclusively 
+to a single participant. This guarantees system-wide progress but not 
+starvation-freedom for every single participant. 
+
+wait-free: Wait-freedom includes the characteristics of lock-freedom and 
+starvation-freedom. 
 
  
 --------------------------------------------------------------------------------
  IPC Objects
 --------------------------------------------------------------------------------
 
-IPC Objects:
- - Mutex
- - Barrier
- - Flag
- - wait-free single-producer single-consumer queue
- - wait-free multi-producer single-consumer queue (*)
- - lock-free multi-producer multi-consumer queue
- - lock-free multi-producer single-consumer queue
- - sensor-buffer object for a wait-free writer and a lock-free consumer
+  Mutex
+  - mutex.h
 
- 
-(*) on ARMv7: lock-free producer and wait-free consumer
+  Barrier
+  - barrier.h
+  
+  Flag
+  - flag.h
 
+  Wait-Free SPSC Queue
+  - spscq.h
+  - single wait-free producer 
+  - single wait-free consumer
+  
+  Wait-Free MPSC Queue
+  - wfmpscq.h
+  - multiple wait-free producer 
+  - single wait-free consumer on x86
+  - single lock-free consumer on ARMv7 (*)
+
+  Lock-Free MPSC Queue
+  - lfmpscq.h
+  - multiple lock-free producer 
+  - single wait-free consumer
+  - implementation based on Maged M. Michael: "Hazard Pointers: Safe Memory 
+    Reclamation for Lock-Free Objects"
+
+  Lock-Free MPMC Queue
+  - mpmcq.h
+  - multiple lock-free producer 
+  - multiple lock-free consumer
+  - implementation based on Maged M. Michael: "Hazard Pointers: Safe Memory 
+    Reclamation for Lock-Free Objects"
+
+  Sensor-Buffer
+  - sensorbuffer.h
+  - wait-free writer 
+  - lock-free consumer
+  - implemeneted for situations where only the most current data is relevant 
+    and older data is discarded (e.g. sensor data) 
+
+(*) on ARMv7 the weaker lock-free charactestic applies because atomic 
+opertations were implemented using retry loops 
 
 
 --------------------------------------------------------------------------------
@@ -67,4 +110,5 @@ librtipc. Most of the benchmarks will need root privileges to run. But be
 carful when running them: Some of them will clear the interrupt flag for some 
 time, so your system will freeze for some time (or forever in case of any 
 error). 
+
 
